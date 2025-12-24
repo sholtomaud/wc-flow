@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('FlowNode', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/tests/test.html');
   });
 
   test('renders with default label', async ({ page }) => {
