@@ -18,3 +18,9 @@ jobs:
       - run: npm install
       - run: npx playwright install --with-deps
       - run: npm test
+      - run: npm run build
+      - name: Upload Playwright snapshots
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-snapshots
+          path: tests/visual.spec.js-snapshots/
