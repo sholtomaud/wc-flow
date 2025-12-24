@@ -17,7 +17,7 @@ This document outlines the tasks required to re-implement Reactflow using **only
 ## 2. Core Component Implementation
 
 ### Rendering
-- [ ] Create a main container Web Component for the graph (`<flow-graph>`).
+- [x] Create a main container Web Component for the graph (`<flow-graph>`).
 - [ ] Implement a Web Component for nodes (`<flow-node>`).
 - [ ] Implement a Web Component for edges (`<flow-edge>`).
 - [ ] Ensure nodes and edges support customization through attributes and slots.

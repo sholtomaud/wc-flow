@@ -1,2 +1,3 @@
-// Placeholder for the main application logic
-console.log("Todo List app is running!");
+import FlowGraph from './src/FlowGraph.js';
+
+customElements.define('flow-graph', FlowGraph);
