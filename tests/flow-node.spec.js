@@ -6,51 +6,52 @@ test.describe('FlowNode', () => {
   });
 
   test('renders with default label', async ({ page }) => {
-    await page.evaluate(() => {
-      const node = document.createElement('flow-node');
-      document.body.appendChild(node);
-    });
-
-    const node = page.locator('flow-node');
+    const node = page.locator('#node-1');
     await expect(node).toBeVisible();
     await expect(node).toHaveAttribute('label', 'Node');
-    await expect(node.locator('span')).toHaveText('Node');
+
+    const label = await page.evaluate(() => {
+      const node = document.querySelector('#node-1');
+      return node.shadowRoot.querySelector('span').textContent;
+    });
+    expect(label).toBe('Node');
   });
 
   test('updates label when attribute is changed', async ({ page }) => {
-    await page.evaluate(() => {
-      const node = document.createElement('flow-node');
-      node.setAttribute('label', 'Initial Label');
-      document.body.appendChild(node);
-      node.setAttribute('label', 'Updated Label');
+    const node = page.locator('#node-1');
+    await node.evaluate(el => el.setAttribute('label', 'Updated Label'));
+
+    await page.waitForFunction(() => {
+      const node = document.querySelector('#node-1');
+      return node.shadowRoot.querySelector('span').textContent === 'Updated Label';
     });
 
-    const node = page.locator('flow-node');
-    await expect(node.locator('span')).toHaveText('Updated Label');
+    const label = await page.evaluate(() => {
+      const node = document.querySelector('#node-1');
+      return node.shadowRoot.querySelector('span').textContent;
+    });
+    expect(label).toBe('Updated Label');
   });
 
   test('renders slotted content instead of label', async ({ page }) => {
+    const node = page.locator('#node-1');
     await page.evaluate(() => {
-      const node = document.createElement('flow-node');
+      const node = document.querySelector('#node-1');
       node.innerHTML = '<div>Custom Content</div>';
-      document.body.appendChild(node);
     });
 
-    const node = page.locator('flow-node');
     // Ensure we are targeting the slotted div, not the one in the shadow DOM
     await expect(node.locator('div').first()).toHaveText('Custom Content');
-    await expect(node.locator('span')).toHaveText('');
+
+    const label = await page.evaluate(() => {
+      const node = document.querySelector('#node-1');
+      return node.shadowRoot.querySelector('span').textContent;
+    });
+    expect(label).toBe('');
   });
 
   test('drags the node to a new position', async ({ page }) => {
-    await page.evaluate(() => {
-      const node = document.createElement('flow-node');
-      node.style.top = '100px';
-      node.style.left = '100px';
-      document.body.appendChild(node);
-    });
-
-    const node = page.locator('flow-node');
+    const node = page.locator('#node-1');
     const boundingBox = await node.boundingBox();
 
     const startX = boundingBox.x + boundingBox.width / 2;
@@ -61,22 +62,14 @@ test.describe('FlowNode', () => {
     await page.mouse.move(startX + 100, startY + 100);
     await page.mouse.up();
 
+    // Initial position is 100, 100
     await expect(node).toHaveCSS('top', '200px');
     await expect(node).toHaveCSS('left', '200px');
   });
 
   test('drags the node correctly on a zoomed graph', async ({ page }) => {
-    await page.evaluate(() => {
-      const graph = document.createElement('flow-graph');
-      const node = document.createElement('flow-node');
-      node.style.top = '100px';
-      node.style.left = '100px';
-      graph.appendChild(node);
-      document.body.appendChild(graph);
-    });
-
     const graph = page.locator('flow-graph');
-    const node = page.locator('flow-node');
+    const node = page.locator('#node-1');
 
     // Zoom in on the graph
     await graph.hover();
@@ -94,11 +87,11 @@ test.describe('FlowNode', () => {
     const zoom = await graph.evaluate(el => getComputedStyle(el).getPropertyValue('--flow-zoom'));
     const zoomFactor = parseFloat(zoom) || 1;
 
-    const finalTop = await node.evaluate(el => el.style.top);
-    const finalLeft = await node.evaluate(el => el.style.left);
+    const finalTop = await node.evaluate(el => parseFloat(el.style.top));
+    const finalLeft = await node.evaluate(el => parseFloat(el.style.left));
 
     // The drag distance should be scaled by the zoom factor
-    expect(parseFloat(finalTop)).toBeCloseTo(100 + (100 / zoomFactor));
-    expect(parseFloat(finalLeft)).toBeCloseTo(100 + (100 / zoomFactor));
+    expect(finalTop).toBeCloseTo(100 + (100 / zoomFactor));
+    expect(finalLeft).toBeCloseTo(100 + (100 / zoomFactor));
   });
 });

@@ -31,6 +31,16 @@ class FlowNode extends HTMLElement {
         border-radius: 5px;
         background-color: #f9f9f9;
         z-index: 1;
+        box-sizing: border-box;
+      }
+
+      :host([selected]) {
+        border-color: blue;
+        box-shadow: 0 0 5px blue;
+      }
+
+      :host(:hover) {
+        border-color: #aaa;
       }
 
       .flow-node {
@@ -82,11 +92,23 @@ class FlowNode extends HTMLElement {
 
   _updateLabel() {
     const slot = this.shadowRoot.querySelector('slot:not([name])');
-    const hasSlottedContent = slot.assignedNodes().length > 0;
+    const hasSlottedContent = slot.assignedElements().length > 0;
     this.labelSpan.textContent = hasSlottedContent ? '' : this.getAttribute('label');
   }
 
   _onPointerDown(event) {
+    if (event.shiftKey) {
+      this.toggleAttribute('selected');
+    } else {
+      // Deselect all other nodes
+      for (const node of this.parentElement.querySelectorAll('flow-node[selected]')) {
+        if (node !== this) {
+          node.removeAttribute('selected');
+        }
+      }
+      this.toggleAttribute('selected');
+    }
+
     this.dragging = true;
     this.initialX = event.clientX;
     this.initialY = event.clientY;
