@@ -26,6 +26,8 @@ class FlowGraph extends HTMLElement {
     `;
 
     // Append elements to the shadow root
+    const slot = document.createElement('slot');
+    wrapper.appendChild(slot);
     this.shadowRoot.append(style, wrapper);
   }
 }
