@@ -91,6 +91,11 @@ class FlowNode extends HTMLElement {
       const dy = (event.clientY - this.initialY) / zoom;
       this.style.top = `${this.initialTop + dy}px`;
       this.style.left = `${this.initialLeft + dx}px`;
+
+      this.dispatchEvent(new CustomEvent('flownodedrag', {
+        bubbles: true,
+        composed: true,
+      }));
     }
   }
 

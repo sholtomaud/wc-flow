@@ -44,6 +44,8 @@ class FlowGraph extends HTMLElement {
     this.panX = 0;
     this.panY = 0;
     this.zoom = 1;
+
+    this._updateEdges = this._updateEdges.bind(this);
   }
 
   connectedCallback() {
@@ -52,6 +54,13 @@ class FlowGraph extends HTMLElement {
     this.addEventListener('pointerup', this._onPointerUp);
     this.addEventListener('pointermove', this._onPointerMove);
     this.addEventListener('pointerleave', this._onPointerUp);
+    this.addEventListener('flownodedrag', this._updateEdges);
+
+    this._observer = new MutationObserver(this._updateEdges);
+    this._observer.observe(this, { childList: true, subtree: true });
+
+    // Initial update
+    requestAnimationFrame(this._updateEdges);
   }
 
   disconnectedCallback() {
@@ -60,6 +69,9 @@ class FlowGraph extends HTMLElement {
     this.removeEventListener('pointerup', this._onPointerUp);
     this.removeEventListener('pointermove', this._onPointerMove);
     this.removeEventListener('pointerleave', this._onPointerUp);
+    this.removeEventListener('flownodedrag', this._updateEdges);
+
+    this._observer.disconnect();
   }
 
   _onWheel(event) {
@@ -110,6 +122,32 @@ class FlowGraph extends HTMLElement {
   _updateTransform() {
     this.viewport.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
     this.style.setProperty('--flow-zoom', this.zoom);
+  }
+
+  _updateEdges() {
+    const edges = Array.from(this.querySelectorAll('flow-edge'));
+    edges.forEach((edge) => {
+      const sourceId = edge.getAttribute('source');
+      const targetId = edge.getAttribute('target');
+
+      if (!sourceId || !targetId) return;
+
+      const sourceNode = this.querySelector(`#${sourceId}`);
+      const targetNode = this.querySelector(`#${targetId}`);
+
+      if (!sourceNode || !targetNode) return;
+
+      const sourceStyle = window.getComputedStyle(sourceNode);
+      const targetStyle = window.getComputedStyle(targetNode);
+
+      const x1 = parseFloat(sourceStyle.left) + parseFloat(sourceStyle.width) / 2;
+      const y1 = parseFloat(sourceStyle.top) + parseFloat(sourceStyle.height) / 2;
+      const x2 = parseFloat(targetStyle.left) + parseFloat(targetStyle.width) / 2;
+      const y2 = parseFloat(targetStyle.top) + parseFloat(targetStyle.height) / 2;
+
+      const d = `M${x1},${y1} C${x1 + 100},${y1} ${x2 - 100},${y2} ${x2},${y2}`;
+      edge.setAttribute('d', d);
+    });
   }
 }
 

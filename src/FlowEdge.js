@@ -7,7 +7,6 @@ class FlowEdge extends HTMLElement {
     svg.setAttribute('class', 'flow-edge');
 
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', 'M0,0 C50,0 50,100 100,100');
     path.setAttribute('stroke', 'black');
     path.setAttribute('stroke-width', '2');
     path.setAttribute('fill', 'none');
@@ -17,8 +16,10 @@ class FlowEdge extends HTMLElement {
       :host {
         display: block;
         position: absolute;
-        width: 100px;
-        height: 100px;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
         pointer-events: none; /* Edges shouldn't block interaction */
       }
 
@@ -33,7 +34,7 @@ class FlowEdge extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['d'];
+    return ['d', 'source', 'target'];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
