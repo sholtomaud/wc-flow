@@ -41,4 +41,64 @@ test.describe('FlowNode', () => {
     await expect(node.locator('div:not(.flow-node)')).toHaveText('Custom Content');
     await expect(node.locator('span')).toHaveText('');
   });
+
+  test('drags the node to a new position', async ({ page }) => {
+    await page.evaluate(() => {
+      const node = document.createElement('flow-node');
+      node.style.top = '100px';
+      node.style.left = '100px';
+      document.body.appendChild(node);
+    });
+
+    const node = page.locator('flow-node');
+    const boundingBox = await node.boundingBox();
+
+    const startX = boundingBox.x + boundingBox.width / 2;
+    const startY = boundingBox.y + boundingBox.height / 2;
+
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX + 100, startY + 100);
+    await page.mouse.up();
+
+    await expect(node).toHaveCSS('top', '200px');
+    await expect(node).toHaveCSS('left', '200px');
+  });
+
+  test('drags the node correctly on a zoomed graph', async ({ page }) => {
+    await page.evaluate(() => {
+      const graph = document.createElement('flow-graph');
+      const node = document.createElement('flow-node');
+      node.style.top = '100px';
+      node.style.left = '100px';
+      graph.appendChild(node);
+      document.body.appendChild(graph);
+    });
+
+    const graph = page.locator('flow-graph');
+    const node = page.locator('flow-node');
+
+    // Zoom in on the graph
+    await graph.hover();
+    await page.mouse.wheel(0, -200); // Zoom in more aggressively
+
+    const boundingBox = await node.boundingBox();
+    const startX = boundingBox.x + boundingBox.width / 2;
+    const startY = boundingBox.y + boundingBox.height / 2;
+
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await page.mouse.move(startX + 100, startY + 100);
+    await page.mouse.up();
+
+    const zoom = await graph.evaluate(el => getComputedStyle(el).getPropertyValue('--flow-zoom'));
+    const zoomFactor = parseFloat(zoom) || 1;
+
+    const finalTop = await node.evaluate(el => el.style.top);
+    const finalLeft = await node.evaluate(el => el.style.left);
+
+    // The drag distance should be scaled by the zoom factor
+    expect(parseFloat(finalTop)).toBeCloseTo(100 + (100 / zoomFactor));
+    expect(parseFloat(finalLeft)).toBeCloseTo(100 + (100 / zoomFactor));
+  });
 });
