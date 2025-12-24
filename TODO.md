@@ -29,6 +29,13 @@ This document outlines the tasks required to re-implement Reactflow using **only
 - [ ] **Selection:**
     - [ ] Enable single and multi-selection of graph elements.
     - [ ] Implement a drag-to-select rectangle using native browser APIs.
+- [ ] **Connectivity:**
+    - [ ] Implement connectivity between nodes so that a click and hold on a node nodule (port on the edge of the node component) and drag so that a flow-edge is progressively drawn until the user hovers over the port (nodule) on another node to make the connection between nodes.
+    - [ ] Enable highlighting of nodes, flow-edges, nodules when the user hovers over them so it is clear what they can click on and select.
+    - [ ] Implement the deletion of a flow-edge connection when they select a flow-edge and press delete or cut.
+- [ ] **Ports**
+    - [ ] Implement the ability to add a port to a node so that a node can have more than one port (nodule/knob)
+    - [ ] Implement the ability to a label and name for ports on the nodes. The lable should be small and within the node element with the ability to be hidden and show on hover or click.
 - [ ] **Keyboard Shortcuts:** Add keyboard shortcuts for common actions (e.g., delete, copy, paste).
 - [ ] **State Management:** Implement a state management solution for nodes, edges, and viewport without external libraries.
 
