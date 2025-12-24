@@ -9,9 +9,21 @@
       margin: 0;
       padding: 0;
     }
+    flow-graph {
+      width: 100vw;
+      height: 100vh;
+    }
   </style>
   <script type="module" src="/index.js"></script>
 </head>
 <body>
+  <flow-graph>
+    <flow-node id="node-1" label="Node" style="top: 100px; left: 100px;">
+      <flow-port id="port-1" slot="ports" style="right: -5px; top: calc(50% - 5px);"></flow-port>
+    </flow-node>
+     <flow-node id="node-2" style="top: 200px; left: 300px;">
+      <flow-port id="port-2" slot="ports" style="left: -5px; top: calc(50% - 5px);"></flow-port>
+    </flow-node>
+  </flow-graph>
 </body>
 </html>

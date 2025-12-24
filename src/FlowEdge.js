@@ -20,8 +20,22 @@ class FlowEdge extends HTMLElement {
         height: 100%;
         top: 0;
         left: 0;
-        pointer-events: none; /* Edges shouldn't block interaction */
+        pointer-events: stroke;
         z-index: 0;
+      }
+
+      path {
+        stroke: black;
+        stroke-width: 2;
+        fill: none;
+      }
+
+      path:hover {
+        stroke: #aaa;
+      }
+
+      :host([selected]) path {
+        stroke: blue;
       }
 
       .flow-edge {
@@ -41,6 +55,27 @@ class FlowEdge extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     if (name === 'd') {
       this.shadowRoot.querySelector('path').setAttribute('d', newValue);
+    }
+  }
+
+  connectedCallback() {
+    this.addEventListener('click', this._onClick);
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('click', this._onClick);
+  }
+
+  _onClick(event) {
+    if (event.shiftKey) {
+      this.toggleAttribute('selected');
+    } else {
+      for (const edge of this.parentElement.querySelectorAll('flow-edge[selected]')) {
+        if (edge !== this) {
+          edge.removeAttribute('selected');
+        }
+      }
+      this.toggleAttribute('selected');
     }
   }
 }
