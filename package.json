@@ -1,0 +1,19 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "A simple todo list application",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "playwright test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.45.1",
+    "prettier": "^3.3.2",
+    "vite": "^5.3.3"
+  }
+}
