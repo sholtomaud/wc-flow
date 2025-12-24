@@ -24,8 +24,8 @@ This document outlines the tasks required to re-implement Reactflow using **only
 - [x] Implement a GitHub Action that builds and publishes a demo website to github pages which demonstrates the rendered web component for the `<flow-graph>`.
 
 ### Interaction (Native Implementation)
-- [ ] **Zoom/Pan:** Implement seamless zooming and panning from scratch using native Pointer Events and CSS Transforms.
-- [ ] **Node Dragging:** Implement node dragging from scratch using native Pointer Events.
+- [x] **Zoom/Pan:** Implement seamless zooming and panning from scratch using native Pointer Events and CSS Transforms.
+- [x] **Node Dragging:** Implement node dragging from scratch using native Pointer Events.
 - [ ] **Selection:**
     - [ ] Enable single and multi-selection of graph elements.
     - [ ] Implement a drag-to-select rectangle using native browser APIs.
