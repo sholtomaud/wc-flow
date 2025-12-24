@@ -21,6 +21,7 @@ This document outlines the tasks required to re-implement Reactflow using **only
 - [ ] Implement a Web Component for nodes (`<flow-node>`).
 - [ ] Implement a Web Component for edges (`<flow-edge>`).
 - [ ] Ensure nodes and edges support customization through attributes and slots.
+- [ ] Implement a GitHub Action that builds and publishes a demo website to github pages which demonstrates the rendered web component for the `<flow-graph>`.
 
 ### Interaction (Native Implementation)
 - [ ] **Zoom/Pan:** Implement seamless zooming and panning from scratch using native Pointer Events and CSS Transforms.
