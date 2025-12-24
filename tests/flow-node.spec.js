@@ -38,7 +38,7 @@ test.describe('FlowNode', () => {
 
     const node = page.locator('flow-node');
     // Ensure we are targeting the slotted div, not the one in the shadow DOM
-    await expect(node.locator('div:not(.flow-node)')).toHaveText('Custom Content');
+    await expect(node.locator('div').first()).toHaveText('Custom Content');
     await expect(node.locator('span')).toHaveText('');
   });
 

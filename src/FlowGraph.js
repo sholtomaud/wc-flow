@@ -129,21 +129,37 @@ class FlowGraph extends HTMLElement {
     edges.forEach((edge) => {
       const sourceId = edge.getAttribute('source');
       const targetId = edge.getAttribute('target');
+      const sourcePortId = edge.getAttribute('source-port');
+      const targetPortId = edge.getAttribute('target-port');
 
-      if (!sourceId || !targetId) return;
+      if (!sourceId || !targetId || !sourcePortId || !targetPortId) return;
 
       const sourceNode = this.querySelector(`#${sourceId}`);
       const targetNode = this.querySelector(`#${targetId}`);
+      const sourcePort = this.querySelector(`#${sourcePortId}`);
+      const targetPort = this.querySelector(`#${targetPortId}`);
 
-      if (!sourceNode || !targetNode) return;
+      if (!sourceNode || !targetNode || !sourcePort || !targetPort) return;
 
-      const sourceStyle = window.getComputedStyle(sourceNode);
-      const targetStyle = window.getComputedStyle(targetNode);
+      const sourceNodeStyle = window.getComputedStyle(sourceNode);
+      const targetNodeStyle = window.getComputedStyle(targetNode);
+      const sourcePortStyle = window.getComputedStyle(sourcePort);
+      const targetPortStyle = window.getComputedStyle(targetPort);
 
-      const x1 = parseFloat(sourceStyle.left) + parseFloat(sourceStyle.width) / 2;
-      const y1 = parseFloat(sourceStyle.top) + parseFloat(sourceStyle.height) / 2;
-      const x2 = parseFloat(targetStyle.left) + parseFloat(targetStyle.width) / 2;
-      const y2 = parseFloat(targetStyle.top) + parseFloat(targetStyle.height) / 2;
+      const sourceNodeLeft = parseFloat(sourceNodeStyle.left);
+      const sourceNodeTop = parseFloat(sourceNodeStyle.top);
+      const targetNodeLeft = parseFloat(targetNodeStyle.left);
+      const targetNodeTop = parseFloat(targetNodeStyle.top);
+
+      const sourcePortWidth = parseFloat(sourcePortStyle.width);
+      const sourcePortHeight = parseFloat(sourcePortStyle.height);
+      const targetPortWidth = parseFloat(targetPortStyle.width);
+      const targetPortHeight = parseFloat(targetPortStyle.height);
+
+      const x1 = sourceNodeLeft + sourcePort.offsetLeft + sourcePortWidth / 2;
+      const y1 = sourceNodeTop + sourcePort.offsetTop + sourcePortHeight / 2;
+      const x2 = targetNodeLeft + targetPort.offsetLeft + targetPortWidth / 2;
+      const y2 = targetNodeTop + targetPort.offsetTop + targetPortHeight / 2;
 
       const d = `M${x1},${y1} C${x1 + 100},${y1} ${x2 - 100},${y2} ${x2},${y2}`;
       edge.setAttribute('d', d);

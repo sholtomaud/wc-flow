@@ -21,6 +21,7 @@ class FlowEdge extends HTMLElement {
         top: 0;
         left: 0;
         pointer-events: none; /* Edges shouldn't block interaction */
+        z-index: 0;
       }
 
       .flow-edge {

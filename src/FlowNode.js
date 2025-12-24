@@ -6,11 +6,19 @@ class FlowNode extends HTMLElement {
     const wrapper = document.createElement('div');
     wrapper.setAttribute('class', 'flow-node');
 
+    const contentWrapper = document.createElement('div');
+    contentWrapper.setAttribute('class', 'flow-node-content');
+    wrapper.appendChild(contentWrapper);
+
     const slot = document.createElement('slot');
-    wrapper.appendChild(slot);
+    contentWrapper.appendChild(slot); // slot for label
 
     this.labelSpan = document.createElement('span');
-    wrapper.appendChild(this.labelSpan);
+    contentWrapper.appendChild(this.labelSpan);
+
+    const portsSlot = document.createElement('slot');
+    portsSlot.setAttribute('name', 'ports');
+    wrapper.appendChild(portsSlot);
 
     const style = document.createElement('style');
     style.textContent = `
@@ -22,9 +30,16 @@ class FlowNode extends HTMLElement {
         border: 1px solid #ddd;
         border-radius: 5px;
         background-color: #f9f9f9;
+        z-index: 1;
       }
 
       .flow-node {
+        position: relative;
+        width: 100%;
+        height: 100%;
+      }
+
+      .flow-node-content {
         padding: 10px;
       }
     `;
@@ -66,7 +81,7 @@ class FlowNode extends HTMLElement {
   }
 
   _updateLabel() {
-    const slot = this.shadowRoot.querySelector('slot');
+    const slot = this.shadowRoot.querySelector('slot:not([name])');
     const hasSlottedContent = slot.assignedNodes().length > 0;
     this.labelSpan.textContent = hasSlottedContent ? '' : this.getAttribute('label');
   }
