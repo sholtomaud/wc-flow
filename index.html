@@ -7,7 +7,11 @@
 </head>
 <body>
   <h1>Web Component Flow</h1>
-  <flow-graph></flow-graph>
-  <script type="module" src="/index.js"></script>
+  <flow-graph>
+    <flow-node label="Node 1" style="top: 50px; left: 50px;"></flow-node>
+    <flow-node label="Node 2" style="top: 200px; left: 250px;"></flow-node>
+    <flow-edge d="M125,75 C150,75 150,225 275,225" style="top: 0; left: 0;"></flow-edge>
+  </flow-graph>
+  <script type="module" src="./index.js"></script>
 </body>
 </html>

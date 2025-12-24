@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('FlowEdge', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/tests/test.html');
   });
 
   test('renders with default path', async ({ page }) => {
