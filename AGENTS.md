@@ -90,3 +90,7 @@ After implementing the core components and features, you must write and run a se
     -   Verify that the programmatic API (`fitView()`, `zoomTo()`) works as expected.
 
 You must run these tests and ensure they pass before submitting the final implementation.
+
+## 7. Task Management
+
+After completing any task or a set of tasks outlined in `TODO.md`, you must update the `TODO.md` file to mark those tasks as complete. This ensures the project's progress is accurately tracked.

@@ -4,15 +4,15 @@ This document outlines the tasks required to re-implement Reactflow using **only
 
 ## 1. Development, Tooling, and CI/CD
 
-- [ ] **Project Setup:**
-    - [ ] Initialize a `package.json` file.
-    - [ ] Add `devDependencies`: `vite`, `playwright`, and `prettier`.
-    - [ ] Configure `npm` scripts for `dev` (runs vite) and `test` (runs playwright).
-- [ ] **CI/CD Pipeline:**
-    - [ ] Create a `.github/workflows/ci.yml` file for GitHub Actions.
-    - [ ] Configure the workflow to trigger on pull requests to the `main` branch.
-    - [ ] The workflow must run jobs to install dependencies (`npm install`) and run tests (`npm test`).
-    - [ ] Configure `main` branch protection rules to require the CI check to pass before merging.
+- [x] **Project Setup:**
+    - [x] Initialize a `package.json` file.
+    - [x] Add `devDependencies`: `vite`, `playwright`, and `prettier`.
+    - [x] Configure `npm` scripts for `dev` (runs vite) and `test` (runs playwright).
+- [x] **CI/CD Pipeline:**
+    - [x] Create a `.github/workflows/ci.yml` file for GitHub Actions.
+    - [x] Configure the workflow to trigger on pull requests to the `main` branch.
+    - [x] The workflow must run jobs to install dependencies (`npm install`) and run tests (`npm test`).
+    - [x] Configure `main` branch protection rules to require the CI check to pass before merging.
 
 ## 2. Core Component Implementation
 
