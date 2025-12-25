@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -23,6 +26,10 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm install
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      - name: Test
+        run: npm test
       - name: Build
         run: npm run build
       - name: Upload artifact
@@ -31,6 +38,7 @@ jobs:
           path: ./dist
 
   deploy:
+    if: github.event_name == 'push'
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -38,5 +46,17 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-preview:
+    if: github.event_name == 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: pr-preview
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy Preview to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
