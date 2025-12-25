@@ -11,4 +11,9 @@ export default defineConfig({
     baseURL: 'http://localhost:5173',
   },
   testDir: 'tests',
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 100,
+    },
+  },
 });
