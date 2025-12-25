@@ -20,11 +20,12 @@ class FlowEdge extends HTMLElement {
         height: 100%;
         top: 0;
         left: 0;
-        pointer-events: stroke;
+        pointer-events: none;
         z-index: 0;
       }
 
       path {
+        pointer-events: stroke;
         stroke: black;
         stroke-width: 2;
         fill: none;

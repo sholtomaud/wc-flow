@@ -38,10 +38,12 @@ test.describe('FlowGraph', () => {
   });
 
   test('pans the graph with a mouse drag', async ({ page }) => {
-    await page.mouse.move(100, 100);
+    await page.keyboard.down('Shift');
+    await page.mouse.move(10, 10);
     await page.mouse.down();
-    await page.mouse.move(200, 200);
+    await page.mouse.move(110, 110);
     await page.mouse.up();
+    await page.keyboard.up('Shift');
 
     const transform = await page.evaluate(() => {
       const graph = document.querySelector('flow-graph');

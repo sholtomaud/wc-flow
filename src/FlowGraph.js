@@ -114,7 +114,15 @@ class FlowGraph extends HTMLElement {
   _onPointerDown(event) {
     if (event.target !== this) return;
 
-    if (event.shiftKey) {
+    // Pan with shift, select without
+    if (event.button === 0 && event.shiftKey) {
+      this.panning = true;
+      this.initialPanX = this.panX;
+      this.initialPanY = this.panY;
+      this.initialMouseX = event.clientX;
+      this.initialMouseY = event.clientY;
+      this.setPointerCapture(event.pointerId);
+    } else if (event.button === 0) {
       this.selecting = true;
       const rect = this.getBoundingClientRect();
       this.selectionStartX = event.clientX - rect.left;
@@ -124,13 +132,6 @@ class FlowGraph extends HTMLElement {
       this.selectionRect.style.top = `${this.selectionStartY}px`;
       this.selectionRect.style.width = '0px';
       this.selectionRect.style.height = '0px';
-      this.setPointerCapture(event.pointerId);
-    } else if (event.button === 0 && !event.shiftKey) { // Left mouse button without shift
-      this.panning = true;
-      this.initialPanX = this.panX;
-      this.initialPanY = this.panY;
-      this.initialMouseX = event.clientX;
-      this.initialMouseY = event.clientY;
       this.setPointerCapture(event.pointerId);
     }
   }
@@ -170,8 +171,8 @@ class FlowGraph extends HTMLElement {
       const x1 = sourceNodeLeft + sourcePort.offsetLeft + sourcePortWidth / 2;
       const y1 = sourceNodeTop + sourcePort.offsetTop + sourcePortHeight / 2;
 
-      const x2 = (event.clientX - this.getBoundingClientRect().left - this.panX) / this.zoom;
-      const y2 = (event.clientY - this.getBoundingClientRect().top - this.panY) / this.zoom;
+      const x2 = (event.offsetX - this.panX) / this.zoom;
+      const y2 = (event.offsetY - this.panY) / this.zoom;
 
       const d = `M${x1},${y1} C${x1 + 100},${y1} ${x2 - 100},${y2} ${x2},${y2}`;
       this.tempEdge.setAttribute('d', d);
@@ -180,26 +181,7 @@ class FlowGraph extends HTMLElement {
 
   _onPointerUp(event) {
     if (this.selecting) {
-      const selectionRect = this.selectionRect.getBoundingClientRect();
-      const nodes = this.querySelectorAll('flow-node');
-      nodes.forEach((node) => {
-        const nodeRect = node.getBoundingClientRect();
-        const isIntersecting =
-          selectionRect.left < nodeRect.right &&
-          selectionRect.right > nodeRect.left &&
-          selectionRect.top < nodeRect.bottom &&
-          selectionRect.bottom > nodeRect.top;
-
-        if (isIntersecting) {
-          if (event.shiftKey) {
-            node.toggleAttribute('selected');
-          } else {
-            node.setAttribute('selected', '');
-          }
-        } else if (!event.shiftKey) {
-          node.removeAttribute('selected');
-        }
-      });
+      this._updateSelection(event);
       this.selectionRect.style.width = '0px';
       this.selectionRect.style.height = '0px';
     } else if (this.connecting) {
@@ -223,6 +205,34 @@ class FlowGraph extends HTMLElement {
     this.selecting = false;
     this.connecting = false;
     this.releasePointerCapture(event.pointerId);
+  }
+
+  _updateSelection(event) {
+    const selectionRect = this.selectionRect.getBoundingClientRect();
+
+    const processElements = (elements) => {
+      elements.forEach((element) => {
+        const elementRect = element.getBoundingClientRect();
+        const isIntersecting =
+          selectionRect.left < elementRect.right &&
+          selectionRect.right > elementRect.left &&
+          selectionRect.top < elementRect.bottom &&
+          selectionRect.bottom > elementRect.top;
+
+        if (isIntersecting) {
+          if (event.shiftKey) {
+            element.toggleAttribute('selected');
+          } else {
+            element.setAttribute('selected', '');
+          }
+        } else if (!event.shiftKey) {
+          element.removeAttribute('selected');
+        }
+      });
+    };
+
+    processElements(this.querySelectorAll('flow-node'));
+    processElements(this.querySelectorAll('flow-edge'));
   }
 
   _updateTransform() {

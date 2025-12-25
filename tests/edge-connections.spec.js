@@ -58,7 +58,7 @@ test.describe('Flow Edge', () => {
       };
     });
 
-    const edge = page.locator('flow-edge');
+    const edge = page.locator('flow-graph > flow-edge:not([id="edge-1"])');
     await expect(edge).toHaveAttribute('source', 'node-1');
     await expect(edge).toHaveAttribute('source-port', 'port-1');
     await expect(edge).toHaveAttribute('target', 'node-2');
