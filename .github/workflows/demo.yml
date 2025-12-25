@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -49,14 +46,3 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  deploy-preview:
-    if: github.event_name == 'pull_request'
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: pr-preview
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy Preview to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
