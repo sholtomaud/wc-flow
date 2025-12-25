@@ -125,7 +125,7 @@ class FlowGraph extends HTMLElement {
       this.selectionRect.style.width = '0px';
       this.selectionRect.style.height = '0px';
       this.setPointerCapture(event.pointerId);
-    } else {
+    } else if (event.button === 0 && !event.shiftKey) { // Left mouse button without shift
       this.panning = true;
       this.initialPanX = this.panX;
       this.initialPanY = this.panY;
@@ -184,13 +184,20 @@ class FlowGraph extends HTMLElement {
       const nodes = this.querySelectorAll('flow-node');
       nodes.forEach((node) => {
         const nodeRect = node.getBoundingClientRect();
-        if (
+        const isIntersecting =
           selectionRect.left < nodeRect.right &&
           selectionRect.right > nodeRect.left &&
           selectionRect.top < nodeRect.bottom &&
-          selectionRect.bottom > nodeRect.top
-        ) {
-          node.toggleAttribute('selected');
+          selectionRect.bottom > nodeRect.top;
+
+        if (isIntersecting) {
+          if (event.shiftKey) {
+            node.toggleAttribute('selected');
+          } else {
+            node.setAttribute('selected', '');
+          }
+        } else if (!event.shiftKey) {
+          node.removeAttribute('selected');
         }
       });
       this.selectionRect.style.width = '0px';
@@ -205,6 +212,7 @@ class FlowGraph extends HTMLElement {
         this.tempEdge.setAttribute('source-port', this.sourcePortId);
         this.tempEdge.setAttribute('target', targetNode.id);
         this.tempEdge.setAttribute('target-port', targetPort.id);
+        this.tempEdge.removeAttribute('temporary');
         this._updateEdges();
       } else {
         this.tempEdge.remove();
@@ -238,6 +246,7 @@ class FlowGraph extends HTMLElement {
     this.sourcePortId = event.detail.portId;
 
     this.tempEdge = document.createElement('flow-edge');
+    this.tempEdge.setAttribute('temporary', '');
     this.appendChild(this.tempEdge);
 
     this.setPointerCapture(event.detail.pointerId);

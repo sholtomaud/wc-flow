@@ -41,6 +41,7 @@ class FlowNode extends HTMLElement {
 
       :host(:hover) {
         border-color: #aaa;
+        box-shadow: 0 0 5px #aaa;
       }
 
       .flow-node {
@@ -97,6 +98,7 @@ class FlowNode extends HTMLElement {
   }
 
   _onPointerDown(event) {
+    event.stopPropagation();
     if (event.shiftKey) {
       this.toggleAttribute('selected');
     } else {
@@ -139,6 +141,11 @@ class FlowNode extends HTMLElement {
   _onPointerUp(event) {
     this.dragging = false;
     this.releasePointerCapture(event.pointerId);
+  }
+
+  addPort(port) {
+    port.setAttribute('slot', 'ports');
+    this.appendChild(port);
   }
 }
 

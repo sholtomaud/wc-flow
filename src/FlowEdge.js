@@ -38,6 +38,11 @@ class FlowEdge extends HTMLElement {
         stroke: blue;
       }
 
+      :host([temporary]) path {
+        stroke: #aaa;
+        stroke-dasharray: 5, 5;
+      }
+
       .flow-edge {
         width: 100%;
         height: 100%;

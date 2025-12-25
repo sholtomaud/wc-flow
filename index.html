@@ -15,6 +15,11 @@
     <flow-node id="node-2" label="Node 2" style="top: 200px; left: 250px;">
       <flow-port id="node-2-port-1" slot="ports" style="left: -5px; top: calc(50% - 5px);"></flow-port>
     </flow-node>
+    <flow-node id="node-3" label="Node 3" style="top: 100px; left: 450px;">
+      <flow-port id="node-3-port-1" slot="ports" label="Input A" style="left: -5px; top: 10px;"></flow-port>
+      <flow-port id="node-3-port-2" slot="ports" label="Input B" style="left: -5px; top: 30px;"></flow-port>
+      <flow-port id="node-3-port-3" slot="ports" label="Output" style="right: -5px; top: calc(50% - 5px);"></flow-port>
+    </flow-node>
     <flow-edge source="node-1" source-port="node-1-port-1" target="node-2" target-port="node-2-port-1"></flow-edge>
   </flow-graph>
   <script type="module" src="./index.js"></script>
