@@ -39,8 +39,12 @@ This document outlines the tasks required to re-implement Reactflow using **only
     - [x] Implement the ability to a label and name for ports on the nodes. The lable should be small and within the node element with the ability to be hidden and show on hover or click.
     - [ ] Implement the ability to click and drag the ports on the nodes to move them around the edge of the node to change their positions
 - [ ] **Right Click Context Menu:**
-    - [ ] Implement the ability to right click on nodes and edges to change the lables/names, and to add ports to the nodes
-- [ ] **Keyboard Shortcuts:** Add keyboard shortcuts for common actions (e.g., delete, copy, paste).
+    - [ ] Implement a context menu on right-click for nodes and edges.
+    - [ ] For nodes, the menu should allow changing labels/names and adding ports.
+    - [ ] For edges, the menu should allow selecting different edge types, colors, and thicknesses.
+- [ ] **Keyboard Shortcuts:**
+    - [ ] Add keyboard shortcuts for common actions (e.g., delete).
+    - [ ] Implement copy and paste functionality for nodes and edges.
 - [ ] **State Management:** Implement a state management solution for nodes, edges, and viewport without external libraries.
 
 ### Customization
@@ -53,6 +57,7 @@ This document outlines the tasks required to re-implement Reactflow using **only
 ### UI Controls
 - [ ] Create a `<flow-minimap>` to display a preview of the graph.
 - [ ] Create a `<flow-controls>` with buttons for zooming in, zooming out, and fitting the view.
+- [ ] Create a `<flow-palette>` with different node shapes that can be dragged onto the canvas.
 
 ### Background
 - [ ] Create a `<flow-background>` with configurable dot or line patterns.
