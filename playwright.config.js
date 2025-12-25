@@ -13,7 +13,7 @@ export default defineConfig({
   testDir: 'tests',
   expect: {
     toHaveScreenshot: {
-      maxDiffPixels: 100,
+      threshold: 0.2,
     },
   },
 });
