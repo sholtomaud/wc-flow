@@ -29,15 +29,21 @@ This document outlines the tasks required to re-implement Reactflow using **only
 - [x] **Selection:**
     - [x] Enable single and multi-selection of graph elements.
     - [x] Implement a drag-to-select rectangle using native browser APIs.
+    - [x] Implement Ctrl/Cmd+click for individual selection.
+    - [x] Implement click away to unselect all.
 - [x] **Connectivity:**
     - [x] Implement connectivity between nodes so that a click and hold on a node nodule (port on the edge of the a flow-edge is progressively drawn until the user hovers over the port (nodule) on another node to make the connection between nodes.
-    - [x] Enable highlighting of nodes, flow-edges, nodules when the user hovers over them so it is clear what they can click on and select.
+    - [x] Ensure the end of the flow-edge exactly follows the cursor.
+    - [x] Enable highlighting of nodes when dragging an edge over them.
     - [x] Implement the deletion of a flow-edge connection when they select a flow-edge and press delete or cut.
 - [x] **Ports**
     - [x] Implement the ability to add a port to a node so that a node can have more than one port (nodule/knob)
     - [x] Implement the ability to a label and name for ports on the nodes. The lable should be small and within the node element with the ability to be hidden and show on hover or click.
-- [ ] **Keyboard Shortcuts:** Add keyboard shortcuts for common actions (e.g., delete, copy, paste).
-- [ ] **State Management:** Implement a state management solution for nodes, edges, and viewport without external libraries.
+- [x] **Keyboard Shortcuts:** Add keyboard shortcuts for common actions (e.g., delete, copy, paste).
+- [x] **Clipboard:** Implement copy, cut, and paste for nodes and edges.
+- [x] **Undo/Redo:** Implement undo (Ctrl/Cmd+Z) and redo (Ctrl/Cmd+Shift+Z).
+- [x] **Context Menu:** Implement a right-click context menu with cut, copy, and paste actions.
+- [x] **State Management:** Implement a state management solution for nodes, edges, and viewport without external libraries.
 
 ### Customization
 - [ ] Support different node and edge types through component composition or extension.
@@ -73,4 +79,3 @@ This document outlines the tasks required to re-implement Reactflow using **only
 ### Accessibility
 - [ ] Implement keyboard navigation for nodes and edges.
 - [ ] Add appropriate ARIA roles and attributes to all components.
-

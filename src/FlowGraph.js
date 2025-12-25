@@ -1,4 +1,9 @@
+import FlowEdge from './FlowEdge.js';
+import FlowNode from './FlowNode.js';
+
 class FlowGraph extends HTMLElement {
+  static _clipboard = [];
+
   constructor() {
     super();
     this.tabIndex = 0;
@@ -46,6 +51,28 @@ class FlowGraph extends HTMLElement {
         pointer-events: none;
         z-index: 2;
       }
+
+      .context-menu {
+        position: absolute;
+        background: #eee;
+        border: 1px solid #ccc;
+        padding: 5px 0;
+        z-index: 100;
+      }
+
+      .context-menu button {
+        display: block;
+        width: 100%;
+        padding: 5px 10px;
+        border: none;
+        background: none;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .context-menu button:hover {
+        background: #ddd;
+      }
     `;
 
     // Append elements to the shadow root
@@ -59,6 +86,8 @@ class FlowGraph extends HTMLElement {
     this.panY = 0;
     this.zoom = 1;
     this.connecting = false;
+    this._history = [];
+    this._historyIndex = -1;
 
     this._updateEdges = this._updateEdges.bind(this);
   }
@@ -69,14 +98,21 @@ class FlowGraph extends HTMLElement {
     this.addEventListener('pointerup', this._onPointerUp);
     this.addEventListener('pointermove', this._onPointerMove);
     this.addEventListener('keydown', this._onKeyDown);
+    this.addEventListener('contextmenu', this._onContextMenu);
     this.addEventListener('flownodedrag', this._updateEdges);
     this.addEventListener('flow-connect-start', this._onFlowConnectStart);
 
-    this._observer = new MutationObserver(this._updateEdges);
-    this._observer.observe(this, { childList: true, subtree: true });
+    this._observer = new MutationObserver(() => {
+      this._updateEdges();
+      this._saveState();
+    });
+    this._observer.observe(this, { childList: true, attributes: true, subtree: true });
 
     // Initial update
-    requestAnimationFrame(this._updateEdges);
+    requestAnimationFrame(() => {
+      this._updateEdges();
+      this._saveState();
+    });
   }
 
   disconnectedCallback() {
@@ -84,8 +120,8 @@ class FlowGraph extends HTMLElement {
     this.removeEventListener('pointerdown', this._onPointerDown);
     this.removeEventListener('pointerup', this._onPointerUp);
     this.removeEventListener('pointermove', this._onPointerMove);
-    this.removeEventListener('pointerleave', this._onPointerUp);
     this.removeEventListener('keydown', this._onKeyDown);
+    this.removeEventListener('contextmenu', this._onContextMenu);
     this.removeEventListener('flownodedrag', this._updateEdges);
 
     this._observer.disconnect();
@@ -112,7 +148,19 @@ class FlowGraph extends HTMLElement {
   }
 
   _onPointerDown(event) {
+    if (this._contextMenu) {
+      this._contextMenu.remove();
+      this._contextMenu = null;
+    }
+
     if (event.target !== this) return;
+
+    // Deselect all nodes/edges if clicking on the background
+    if (!event.ctrlKey && !event.metaKey && !event.shiftKey) {
+      for (const el of this.querySelectorAll('[selected]')) {
+        el.removeAttribute('selected');
+      }
+    }
 
     if (event.shiftKey) {
       this.selecting = true;
@@ -160,21 +208,35 @@ class FlowGraph extends HTMLElement {
       const sourcePort = this.querySelector(`#${this.sourcePortId}`);
       const sourceNode = this.querySelector(`#${this.sourceNodeId}`);
       const sourceNodeStyle = window.getComputedStyle(sourceNode);
-      const sourcePortStyle = window.getComputedStyle(sourcePort);
 
       const sourceNodeLeft = parseFloat(sourceNodeStyle.left);
       const sourceNodeTop = parseFloat(sourceNodeStyle.top);
-      const sourcePortWidth = parseFloat(sourcePortStyle.width);
-      const sourcePortHeight = parseFloat(sourcePortStyle.height);
+      const sourcePortWidth = sourcePort.offsetWidth;
+      const sourcePortHeight = sourcePort.offsetHeight;
 
       const x1 = sourceNodeLeft + sourcePort.offsetLeft + sourcePortWidth / 2;
       const y1 = sourceNodeTop + sourcePort.offsetTop + sourcePortHeight / 2;
 
-      const x2 = (event.clientX - this.getBoundingClientRect().left - this.panX) / this.zoom;
-      const y2 = (event.clientY - this.getBoundingClientRect().top - this.panY) / this.zoom;
+      const rect = this.getBoundingClientRect();
+      const x2 = (event.clientX - rect.left - this.panX) / this.zoom;
+      const y2 = (event.clientY - rect.top - this.panY) / this.zoom;
 
       const d = `M${x1},${y1} C${x1 + 100},${y1} ${x2 - 100},${y2} ${x2},${y2}`;
       this.tempEdge.setAttribute('d', d);
+
+      // Node highlighting
+      const target = document.elementFromPoint(event.clientX, event.clientY);
+      const targetNode = target ? target.closest('flow-node') : null;
+
+      // Remove previous highlight
+      const highlightedNode = this.querySelector('flow-node[highlighted]');
+      if (highlightedNode && highlightedNode !== targetNode) {
+        highlightedNode.removeAttribute('highlighted');
+      }
+
+      if (targetNode && targetNode.id !== this.sourceNodeId) {
+        targetNode.setAttribute('highlighted', '');
+      }
     }
   }
 
@@ -190,7 +252,7 @@ class FlowGraph extends HTMLElement {
           selectionRect.top < nodeRect.bottom &&
           selectionRect.bottom > nodeRect.top
         ) {
-          node.toggleAttribute('selected');
+          node.setAttribute('selected', '');
         }
       });
       this.selectionRect.style.width = '0px';
@@ -199,16 +261,23 @@ class FlowGraph extends HTMLElement {
       const target = document.elementFromPoint(event.clientX, event.clientY);
       const targetPort = target ? target.closest('flow-port') : null;
 
+      const highlightedNode = this.querySelector('flow-node[highlighted]');
+      if (highlightedNode) {
+        highlightedNode.removeAttribute('highlighted');
+      }
+
       if (targetPort && targetPort.closest('flow-node').id !== this.sourceNodeId) {
         const targetNode = targetPort.closest('flow-node');
-        this.tempEdge.setAttribute('source', this.sourceNodeId);
-        this.tempEdge.setAttribute('source-port', this.sourcePortId);
-        this.tempEdge.setAttribute('target', targetNode.id);
-        this.tempEdge.setAttribute('target-port', targetPort.id);
-        this._updateEdges();
-      } else {
-        this.tempEdge.remove();
+        const newEdge = document.createElement('flow-edge');
+        newEdge.setAttribute('source', this.sourceNodeId);
+        newEdge.setAttribute('source-port', this.sourcePortId);
+        newEdge.setAttribute('target', targetNode.id);
+        newEdge.setAttribute('target-port', targetPort.id);
+        this.appendChild(newEdge);
       }
+
+      this.tempEdge.remove();
+      this.tempEdge = null;
     }
 
     this.panning = false;
@@ -220,15 +289,131 @@ class FlowGraph extends HTMLElement {
   _updateTransform() {
     this.viewport.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
     this.style.setProperty('--flow-zoom', this.zoom);
+    this._updateEdges();
   }
 
   _onKeyDown(event) {
+    if (event.ctrlKey || event.metaKey) {
+      if (event.key === 'c') this._copy();
+      if (event.key === 'x') this._cut();
+      if (event.key === 'v') this._paste();
+      if (event.key === 'z') {
+        if (event.shiftKey) {
+          this._redo();
+        } else {
+          this._undo();
+        }
+        event.preventDefault();
+      }
+    }
+
     if (event.key === 'Delete' || event.key === 'Backspace') {
       const selectedNodes = this.querySelectorAll('flow-node[selected]');
       selectedNodes.forEach(node => node.remove());
 
       const selectedEdges = this.querySelectorAll('flow-edge[selected]');
       selectedEdges.forEach(edge => edge.remove());
+    }
+  }
+
+  _onContextMenu(event) {
+    event.preventDefault();
+    if (this._contextMenu) {
+      this._contextMenu.remove();
+    }
+
+    const menu = document.createElement('div');
+    menu.className = 'context-menu';
+    menu.style.left = `${event.clientX}px`;
+    menu.style.top = `${event.clientY}px`;
+
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy';
+    copyButton.onclick = () => this._copy();
+
+    const cutButton = document.createElement('button');
+    cutButton.textContent = 'Cut';
+    cutButton.onclick = () => this._cut();
+
+    const pasteButton = document.createElement('button');
+    pasteButton.textContent = 'Paste';
+    pasteButton.onclick = () => this._paste();
+
+    menu.appendChild(copyButton);
+    menu.appendChild(cutButton);
+    menu.appendChild(pasteButton);
+
+    this.shadowRoot.appendChild(menu);
+    this._contextMenu = menu;
+  }
+
+  _copy() {
+    FlowGraph._clipboard = [];
+    const selected = this.querySelectorAll('[selected]');
+    selected.forEach(el => {
+      FlowGraph._clipboard.push(el.cloneNode(true));
+    });
+  }
+
+  _cut() {
+    this._copy();
+    const selected = this.querySelectorAll('[selected]');
+    selected.forEach(el => el.remove());
+  }
+
+  _paste() {
+    const rect = this.getBoundingClientRect();
+    const x = (event.clientX - rect.left - this.panX) / this.zoom;
+    const y = (event.clientY - rect.top - this.panY) / this.zoom;
+
+    // Deselect all nodes/edges
+    for (const el of this.querySelectorAll('[selected]')) {
+      el.removeAttribute('selected');
+    }
+
+    FlowGraph._clipboard.forEach(el => {
+      const newEl = el.cloneNode(true);
+      const newId = `${newEl.tagName.toLowerCase()}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      newEl.id = newId;
+
+      if (newEl instanceof FlowNode) {
+        newEl.style.left = `${x}px`;
+        newEl.style.top = `${y}px`;
+      }
+
+      newEl.setAttribute('selected', '');
+      this.appendChild(newEl);
+    });
+  }
+
+  _saveState() {
+    const state = this.innerHTML;
+    if (state === this._history[this._historyIndex]) {
+      return;
+    }
+    this._history = this._history.slice(0, this._historyIndex + 1);
+    this._history.push(state);
+    this._historyIndex++;
+  }
+
+  _restoreState(state) {
+    this._observer.disconnect();
+    this.innerHTML = state;
+    this._observer.observe(this, { childList: true, attributes: true, subtree: true });
+    this._updateEdges();
+  }
+
+  _undo() {
+    if (this._historyIndex > 0) {
+      this._historyIndex--;
+      this._restoreState(this._history[this._historyIndex]);
+    }
+  }
+
+  _redo() {
+    if (this._historyIndex < this._history.length - 1) {
+      this._historyIndex++;
+      this._restoreState(this._history[this._historyIndex]);
     }
   }
 
@@ -262,18 +447,16 @@ class FlowGraph extends HTMLElement {
 
       const sourceNodeStyle = window.getComputedStyle(sourceNode);
       const targetNodeStyle = window.getComputedStyle(targetNode);
-      const sourcePortStyle = window.getComputedStyle(sourcePort);
-      const targetPortStyle = window.getComputedStyle(targetPort);
 
       const sourceNodeLeft = parseFloat(sourceNodeStyle.left);
       const sourceNodeTop = parseFloat(sourceNodeStyle.top);
       const targetNodeLeft = parseFloat(targetNodeStyle.left);
       const targetNodeTop = parseFloat(targetNodeStyle.top);
 
-      const sourcePortWidth = parseFloat(sourcePortStyle.width);
-      const sourcePortHeight = parseFloat(sourcePortStyle.height);
-      const targetPortWidth = parseFloat(targetPortStyle.width);
-      const targetPortHeight = parseFloat(targetPortStyle.height);
+      const sourcePortWidth = sourcePort.offsetWidth;
+      const sourcePortHeight = sourcePort.offsetHeight;
+      const targetPortWidth = targetPort.offsetWidth;
+      const targetPortHeight = targetPort.offsetHeight;
 
       const x1 = sourceNodeLeft + sourcePort.offsetLeft + sourcePortWidth / 2;
       const y1 = sourceNodeTop + sourcePort.offsetTop + sourcePortHeight / 2;

@@ -39,6 +39,11 @@ class FlowNode extends HTMLElement {
         box-shadow: 0 0 5px blue;
       }
 
+      :host([highlighted]) {
+        border-color: green;
+        box-shadow: 0 0 5px green;
+      }
+
       :host(:hover) {
         border-color: #aaa;
       }
@@ -97,19 +102,24 @@ class FlowNode extends HTMLElement {
   }
 
   _onPointerDown(event) {
-    if (event.shiftKey) {
+    // Prevent deselection when right-clicking on an already selected node
+    if (event.button === 2 && this.hasAttribute('selected')) {
+      // We still want to allow the context menu to appear
+    } else if (event.ctrlKey || event.metaKey || event.shiftKey) {
       this.toggleAttribute('selected');
     } else {
-      // Deselect all other nodes
-      for (const node of this.parentElement.querySelectorAll('flow-node[selected]')) {
-        if (node !== this) {
-          node.removeAttribute('selected');
+      // Deselect all other nodes and edges
+      for (const el of this.parentElement.querySelectorAll('[selected]')) {
+        if (el !== this) {
+          el.removeAttribute('selected');
         }
       }
       this.toggleAttribute('selected');
     }
 
-    this.dragging = true;
+    if (event.button !== 2) {
+      this.dragging = true;
+    }
     this.initialX = event.clientX;
     this.initialY = event.clientY;
 

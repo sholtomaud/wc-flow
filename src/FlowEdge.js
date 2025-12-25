@@ -67,12 +67,13 @@ class FlowEdge extends HTMLElement {
   }
 
   _onClick(event) {
-    if (event.shiftKey) {
+    if (event.ctrlKey || event.metaKey || event.shiftKey) {
       this.toggleAttribute('selected');
     } else {
-      for (const edge of this.parentElement.querySelectorAll('flow-edge[selected]')) {
-        if (edge !== this) {
-          edge.removeAttribute('selected');
+      // Deselect all other nodes and edges
+      for (const el of this.parentElement.querySelectorAll('[selected]')) {
+        if (el !== this) {
+          el.removeAttribute('selected');
         }
       }
       this.toggleAttribute('selected');

@@ -6,7 +6,20 @@
   <title>Web Component Flow</title>
 </head>
 <body>
-  <h1>Web Component Flow</h1>
+  <div style="position: absolute; top: 10px; left: 10px; z-index: 10; background: #eee; padding: 10px; border: 1px solid #ccc;">
+    <h3>Instructions</h3>
+    <ul>
+      <li><b>Pan:</b> Click and drag the canvas background.</li>
+      <li><b>Deselect:</b> Click the canvas background.</li>
+      <li><b>Multi-select:</b> Hold Ctrl/Cmd or Shift while clicking nodes/edges.</li>
+      <li><b>Copy:</b> Select items and press Ctrl/Cmd+C.</li>
+      <li><b>Cut:</b> Select items and press Ctrl/Cmd+X.</li>
+      <li><b>Paste:</b> Press Ctrl/Cmd+V.</li>
+      <li><b>Undo:</b> Press Ctrl/Cmd+Z.</li>
+      <li><b>Redo:</b> Press Ctrl/Cmd+Shift+Z.</li>
+      <li><b>Context Menu:</b> Right-click on a node or edge.</li>
+    </ul>
+  </div>
   <flow-graph>
     <flow-node id="node-1" label="Node 1" style="top: 50px; left: 50px;">
       <flow-port id="node-1-port-1" slot="ports" label="Output" style="right: -5px; top: calc(50% - 5px);"></flow-port>
