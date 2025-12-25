@@ -19,11 +19,13 @@ class FlowPort extends HTMLElement {
 
       :host(:hover) {
         background-color: #eee;
+        border-color: #999;
+        box-shadow: 0 0 5px #999;
       }
 
       span {
         position: absolute;
-        visibility: hidden;
+        display: none;
         background-color: #fff;
         border: 1px solid #ddd;
         padding: 2px 5px;
@@ -36,7 +38,7 @@ class FlowPort extends HTMLElement {
       }
 
       :host(:hover) span {
-        visibility: visible;
+        display: block;
       }
     `;
 
