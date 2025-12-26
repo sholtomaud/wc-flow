@@ -70,7 +70,8 @@ Organize the repository as follows:
 -   **Jobs:** The workflow must include a job that:
     1.  Checks out the code.
     2.  Installs dependencies using `npm install`.
-    3.  Runs all Playwright tests using `npm test`.
+    3.  Builds the project using `npm run build`.
+    4.  Runs all Playwright tests using `npm test`.
 -   **Branch Protection:** The `main` branch must be protected, requiring the CI checks to pass before a pull request can be merged.
 
 ## 6. Programmatic Checks
