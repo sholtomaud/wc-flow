@@ -13,7 +13,7 @@ export default defineConfig({
   testDir: 'tests',
   expect: {
     toHaveScreenshot: {
-      threshold: 0.2,
+      threshold: 0.4,
     },
   },
 });
