@@ -171,8 +171,9 @@ class FlowGraph extends HTMLElement {
       const x1 = sourceNodeLeft + sourcePort.offsetLeft + sourcePortWidth / 2;
       const y1 = sourceNodeTop + sourcePort.offsetTop + sourcePortHeight / 2;
 
-      const x2 = (event.offsetX - this.panX) / this.zoom;
-      const y2 = (event.offsetY - this.panY) / this.zoom;
+      const rect = this.getBoundingClientRect();
+      const x2 = (event.clientX - rect.left - this.panX) / this.zoom;
+      const y2 = (event.clientY - rect.top - this.panY) / this.zoom;
 
       const d = `M${x1},${y1} C${x1 + 100},${y1} ${x2 - 100},${y2} ${x2},${y2}`;
       this.tempEdge.setAttribute('d', d);

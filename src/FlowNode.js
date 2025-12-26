@@ -34,14 +34,14 @@ class FlowNode extends HTMLElement {
         box-sizing: border-box;
       }
 
-      :host([selected]) {
-        border-color: blue;
-        box-shadow: 0 0 5px blue;
-      }
-
       :host(:hover) {
         border-color: #aaa;
         box-shadow: 0 0 5px #aaa;
+      }
+
+      :host([selected]) {
+        border-color: blue;
+        box-shadow: 0 0 5px blue;
       }
 
       .flow-node {
